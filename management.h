@@ -1,6 +1,6 @@
 /**
  * Filename: management.h
- * Description: Array management method decolaration
+ * Description: Array management method declaration
  * Author: C. Shannon Terry
  * Date: 9/29/2026
  */

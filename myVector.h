@@ -5,8 +5,8 @@
  * Date: 9/29/2026
  */
 
-typedef struct {
-    char[10] name;
+typedef struct vector {
+    char name[10];
     double x;
     double y;
     double z;

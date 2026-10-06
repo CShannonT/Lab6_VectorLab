@@ -5,7 +5,7 @@
  * Date: 9/29/2026
  */
 
-#include "myvector.h"
+#include "myVector.h"
 #include "vectorMethods.h"
 
 vector add(vector a, vector b) {
