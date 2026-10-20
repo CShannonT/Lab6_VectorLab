@@ -7,8 +7,11 @@
 
 #include "myVector.h"
 
-void addVector(vector a);
-void removeVector(vector a);
+void initializeManagement();
+int addVector(vector a);
+int removeVector(vector a);
 vector getVector(char* name);
+bool doesVectorExist(char* name);
+vector getVectorAtIndex(int index);
 bool isArrayFull();
 void clearArray();

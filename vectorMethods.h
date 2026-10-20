@@ -8,7 +8,7 @@
 #include "myVector.h"
 
 vector add(vector a, vector b);
-vector sub(vector a, vector b);
+vector subtract(vector a, vector b);
 vector multiply(vector a, double b);
 double dotProduct(vector a, vector b);
 vector crossProduct(vector a, vector b);

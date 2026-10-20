@@ -16,7 +16,7 @@ vector add(vector a, vector b) {
     return returnVector;
 }
 
-vector sub(vector a, vector b) {
+vector subtract(vector a, vector b) {
     vector returnVector;
     returnVector.x = a.x - b.x;
     returnVector.y = a.y - b.y;

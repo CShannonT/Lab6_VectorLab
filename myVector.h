@@ -6,7 +6,7 @@
  */
 
 typedef struct vector {
-    char name[10];
+    char name[20];
     double x;
     double y;
     double z;

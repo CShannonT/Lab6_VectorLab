@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-c -Wall
 LDFLAGS=-lm
-SOURCES=management.c vectorMethods.c main.c
+SOURCES=management.c vectorMethods.c control.c main.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=VectorCalc
 
