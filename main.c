@@ -16,6 +16,13 @@
 #define CHARACTER_LIMIT 200
 
 int main(int argc, char* argv[]) {
+    int didExitSet = atExit(quitProgram);
+    if (didExitSet != 0) {
+        printf("The program did not initialize properly. Please try again.\n");
+        exit(0);
+    } else {
+        initializeManagement();
+    }
     printf("Welcome to the Vector Calculator!\n");
     if (argc > 1) {
         if (strcmp(argv[1], "-h") == 0) {
@@ -35,7 +42,6 @@ int main(int argc, char* argv[]) {
             printf("Enter 'quit' to exit the program.\n");
         }
     }
-    initializeManagement();
     int returnVal = 1;
     char userInput[CHARACTER_LIMIT];
     while (returnVal != 0) {

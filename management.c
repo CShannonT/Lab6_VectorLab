@@ -10,20 +10,39 @@
 #include "management.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#define MAX_VECTORS 10 
 #define TERMINATOR '\0'
-static vector vectorList[MAX_VECTORS];
+static vector *vectorList;
 static int currentEntryCount = 0;
+static int currentMax = 1;
 
 void initializeManagement() {
+    vectorList = malloc(sizeof(vector));
     vector blank;
     strcpy(blank.name, "\0");
     blank.x = 0;
     blank.y = 0;
     blank.z = 0;
-    for (int i = 0; i < MAX_VECTORS; i++) {
-        vectorList[i] = blank;
+    vectorList[0] = blank;
+}
+
+int reallocation() {
+    currentMax *= 2; //Increase max size.
+    vector blank;
+    strcpy(blank.name, "\0");
+    blank.x = 0;
+    blank.y = 0;
+    blank.z = 0;
+    vectorList = realloc(vectorList, sizeof(vector)*currentMax);
+    if (vectorList != NULL) {
+        for (int i = currentEntryCount; i < currentMax; i++) {
+            vectorList[i+1] = blank; //Fill empty positions with blank vectors
+            //Needed to avoid undefined accesses to garbage data in file IO.
+        }
+        return 0;
+    } else {
+        return -1;
     }
 }
 
@@ -51,7 +70,13 @@ int addVector(vector a) {
         }
         return 0;
     } else {
-        return -1; //Failure to add - ARRAY FULL
+        int retCode = reallocation();
+        if (retCode == 0) {
+            return addVector(a); //This could be a really bad idea.
+        } else {
+            printf("Memory reallocation failed.\n");
+            return -1; //Failure to add - ARRAY FULL
+        }
     }
     return -1;
 }
@@ -67,7 +92,7 @@ int removeVector(vector a) {
     blank.z = 0;
     int i = 0;
     bool removed = false; 
-    while ((!removed) && (i < MAX_VECTORS)) {
+    while ((!removed) && (i < currentMax)) {
         vector currentVector = vectorList[i];
         if ((strcmp(currentVector.name, a.name)) == 0) {
             vectorList[i] = blank;
@@ -77,7 +102,7 @@ int removeVector(vector a) {
             i++;
         }
     }
-    if (i < MAX_VECTORS) {
+    if (i < currentMax) {
         return 0;
     } else {
         return -1; //Failure to remove - does not exist.
@@ -93,7 +118,7 @@ vector getVector(char* name) {
     blank.z = 0;
     int i = 0;
     bool found = false; 
-    while ((!found) && (i < MAX_VECTORS)) {
+    while ((!found) && (i < currentMax)) {
         vector currentVector = vectorList[i];
         if ((strcmp(currentVector.name, name)) == 0) {
             returnVector = vectorList[i];
@@ -112,7 +137,7 @@ vector getVector(char* name) {
 bool doesVectorExist(char* name) {
     int i = 0;
     bool found = false; 
-    while ((!found) &&  (i < MAX_VECTORS)) {
+    while ((!found) &&  (i < currentMax)) {
         vector currentVector = vectorList[i];
         if ((strcmp(currentVector.name, name)) == 0) {
             found = true;
@@ -131,7 +156,7 @@ vector getVectorAtIndex(int index) {
 }
 
 bool isArrayFull() {
-    if (currentEntryCount == MAX_VECTORS) {
+    if (currentEntryCount >= currentMax) {
         return true;
     } else {
         return false;
@@ -144,8 +169,14 @@ void clearArray() {
     blank.x = 0;
     blank.y = 0;
     blank.z = 0;
-    for (int i = 0; i < MAX_VECTORS; i++) {
+    for (int i = 0; i < currentMax; i++) {
         vectorList[i] = blank;
     }
+    free(vectorList);
+    initializeManagement();
     currentEntryCount = 0;
+}
+
+void quitProgram() {
+    free(vectorList);
 }

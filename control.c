@@ -12,6 +12,7 @@
 #include "vectorMethods.h"
 #include "myVector.h"
 #include "control.h"
+#include "fileHandling.h"
 
 #define MAX_VECTORS 10 
 #define NAMELENGTH 20
@@ -47,7 +48,8 @@ int parseInput(char *inputText) {
     }
     //printf("arg1: %s\narg2: %s\narg3: %s\narg4: %s\narg5: %s\n", arg1, arg2, arg3, arg4, arg5);
     if (!arg2) { //One argument. Likely EXIT, CLEAR, or LIST
-        if (strcmp(arg1, "quit") == 0) {
+        if ((strcmp(arg1, "quit") == 0) || (strcmp(arg1, "exit") == 0)) {
+            free(newVectName);
             return 0; //0 will be used as an exit command in main.
         } else if (strcmp(arg1, "clear") == 0) {
             clearArray();
@@ -74,8 +76,25 @@ int parseInput(char *inputText) {
                 printf("No vector of name %s found.\n", arg1);
             }
         }
-    } else if (!arg3) { //There are actually no two arg commands.
-        printf("Error. Command not recognized. Please enter a valid command.\n");
+    } else if (!arg3) { //TOnly two arg commands are save and load.
+        if (strcmp(arg1, "load") == 0) {
+            int loadReturn = loadFromCSV(arg2);
+            if (loadReturn == -1) { //Failure to load file
+                printf("File load failed. Please check the file name and path.\n");
+            } else if (loadReturn == -2) {
+                printf("Vector add failed. Please restart the program and try again.\n");
+            }
+            //Otherwise, it worked fine.
+        } else if (strcmp(arg1, "save") == 0) {
+            int saveReturn = loadToCSV(arg2);
+            if (saveReturn == -1) { //Failure to load file
+                printf("File load failed. Please check the file name and path.\n");
+            } else if (saveReturn == -2) {
+                printf("Writing to file failed. Please try again.\n");
+            }
+        } else {
+            printf("Error. One or more arguments are invalid. Use the -h command line option to see commands and formatting.\n");
+        }
     } else if (!arg4) { //There are a few options here. 
         //printf("Reached !arg4 branch.\n");
         if (strcmp(arg2, "+") == 0) { //Addition
