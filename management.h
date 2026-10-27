@@ -18,3 +18,4 @@ int getVectorCount();
 bool isArrayFull();
 void clearArray();
 void quitProgram();
+void quitProgramCtrlC(int non);

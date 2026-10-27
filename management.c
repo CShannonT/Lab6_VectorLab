@@ -185,6 +185,11 @@ void clearArray() {
 }
 
 void quitProgram() {
-    free(vectorList);
+    if (vectorList != NULL) {
+        free(vectorList);
+    }
+}
+
+void quitProgramCtrlC(int non) {
     exit(0);
 }

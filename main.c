@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     } else {
         initializeManagement();
     }
-    signal(SIGINT, quitProgram);
+    signal(SIGINT, quitProgramCtrlC);
     printf("Welcome to the Vector Calculator!\n");
     if (argc > 1) {
         if (strcmp(argv[1], "-h") == 0) {
