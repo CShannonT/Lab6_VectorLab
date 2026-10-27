@@ -186,4 +186,5 @@ void clearArray() {
 
 void quitProgram() {
     free(vectorList);
+    exit(0);
 }

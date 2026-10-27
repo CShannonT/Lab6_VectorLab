@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #define CHARACTER_LIMIT 200
 
@@ -23,6 +24,7 @@ int main(int argc, char* argv[]) {
     } else {
         initializeManagement();
     }
+    signal(SIGINT, quitProgram);
     printf("Welcome to the Vector Calculator!\n");
     if (argc > 1) {
         if (strcmp(argv[1], "-h") == 0) {
