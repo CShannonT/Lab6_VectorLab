@@ -18,7 +18,7 @@ static int currentEntryCount = 0;
 static int currentMax = 1;
 
 void initializeManagement() {
-    vectorList = malloc(sizeof(vector));
+    vectorList = calloc(sizeof(vector), sizeof(vector));
     vector blank;
     strcpy(blank.name, "\0");
     blank.x = 0;
@@ -31,18 +31,20 @@ int reallocation() {
     currentMax *= 2; //Increase max size.
     vector blank;
     strcpy(blank.name, "\0");
+    //printf("Curr max is %d\n", currentMax);
     blank.x = 0;
     blank.y = 0;
     blank.z = 0;
-    vectorList = realloc(vectorList, sizeof(vector)*currentMax);
-    if (vectorList != NULL) {
+    vector *tempPointer = realloc(vectorList, (sizeof(vector)*currentMax));
+    if (tempPointer != NULL) {
+        vectorList = tempPointer;
         for (int i = currentEntryCount; i < currentMax; i++) {
-            vectorList[i+1] = blank; //Fill empty positions with blank vectors
+            vectorList[i] = blank; //Fill empty positions with blank vectors
             //Needed to avoid undefined accesses to garbage data in file IO.
         }
         return 0;
     } else {
-        return -1;
+        return -1; //Failed to allocate memory
     }
 }
 
@@ -73,9 +75,10 @@ int addVector(vector a) {
         int retCode = reallocation();
         if (retCode == 0) {
             return addVector(a); //This could be a really bad idea.
+            //It seems to have worked fine though.
         } else {
             printf("Memory reallocation failed.\n");
-            return -1; //Failure to add - ARRAY FULL
+            return -1; //Failure to add.
         }
     }
     return -1;
@@ -153,6 +156,10 @@ vector getVectorAtIndex(int index) {
     return returnVector;
     //When a vector is returned in this way, its name will be blank
     //if there is no vector at that position.
+}
+
+int getVectorCount() {
+    return currentEntryCount;
 }
 
 bool isArrayFull() {

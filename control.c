@@ -56,7 +56,7 @@ int parseInput(char *inputText) {
             printf("All vectors cleared.\n");
         } else if (strcmp(arg1, "list") == 0) {
             printf("Vectors in memory:\n");
-            for (int i = 0; i < MAX_VECTORS; i++) {
+            for (int i = 0; i < getVectorCount(); i++) {
                 vector indVect = getVectorAtIndex(i);
                 if (!(indVect.name[0] == TERMINATOR)) {
                     printf("%s = (%.2f, %.2f, %.2f)\n", \
@@ -80,7 +80,7 @@ int parseInput(char *inputText) {
         if (strcmp(arg1, "load") == 0) {
             int loadReturn = loadFromCSV(arg2);
             if (loadReturn == -1) { //Failure to load file
-                printf("File load failed. Please check the file name and path.\n");
+                printf("File load failed. Please check the file name, path, and type.\n");
             } else if (loadReturn == -2) {
                 printf("Vector add failed. Please restart the program and try again.\n");
             }
@@ -281,7 +281,7 @@ int parseInput(char *inputText) {
         //printf("Reached 5 argument branch.\n");
         if (strcmp(arg4, "+") == 0) { //Addition
             //printf("Reached 5 argument branch - adding.\n");
-            strncpy(newVectName, arg1, NAMELENGTH); //SEGFAULT BETWEEN THESE TWO PRINTS
+            strncpy(newVectName, arg1, NAMELENGTH);
             vector vectA = getVector(arg3);
             vector vectB = getVector(arg5);
             if ((doesVectorExist(vectA.name)) && doesVectorExist(vectB.name)) {

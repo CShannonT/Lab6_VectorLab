@@ -8,10 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "myvector.h"
+#include "myVector.h"
 #include "management.h"
 
-#define CHARACTER_LIMIT = 200;
+#define CHARACTER_LIMIT 200
+#define VECT_NAME_MAX 20
 
 /*You must gracefully handle a missing (or mistyped) file.
 ▪ You must gracefully handle a mis-formatted CSV file.
@@ -25,54 +26,73 @@ int loadFromCSV(char* fileName) {
     if (filepointer == NULL) {
         return -1;
     } else {
-        char* currentLineText = malloc(sizeof(char)*CHARACTER_LIMIT);
+        char* currentLineText = malloc(sizeof(char) * CHARACTER_LIMIT);
+        bool shouldLoopContinue = true;
         if (currentLineText != NULL) {
-            //MAKE SURE THAT THIS IS THE CORRECT CHECK
             do {
-                fgets(currentLineText, sizeof(currentLineText), filepointer);
-                char *arg1 = strtok((currentLineText), ",");
-                char *arg2 = NULL;
-                char *arg3 = NULL;
-                char *arg4 = NULL;
-                if (arg1 != NULL) {
-                    arg2 = strtok(NULL, ",");
-                    arg1[strlen(arg1)] = '\0';
+                char *newVectName = calloc(VECT_NAME_MAX, sizeof(char));
+                if (newVectName == NULL) {
+                    return -1; //Failure to allocate memory
                 }
-                if (arg2 != NULL) {
-                    arg3 = strtok(NULL, ",");
-                    arg2[strlen(arg2)] = '\0';
-                } 
-                if (arg3 != NULL) {
-                    arg4 = strtok(NULL, ",");
-                    arg3[strlen(arg3)] = '\0';
-                }
-                if (arg4 != NULL) {
-                    arg4[strlen(arg4)] = '\0';
-                }
-                vector addVect;
-                if (atof(arg2) != 0) {  
-                    addVect.x = atof(arg2); //TODO: Check if this needs typechecking.
+                int didItWork = fscanf(filepointer, "%s", currentLineText); //Did the read run properly or hit EOF
+                //printf("Scanf obtained: %s\n", currentLineText);
+                if (strlen(currentLineText) != 0 && currentLineText[0] != '\r' && currentLineText[0] != '\n' && didItWork == 1) {
+                    //Need to check all of these to account for all EOF conditions.
+                    vector addVect;
+                    char *arg1 = strtok((currentLineText), ",");
+                    char *arg2 = NULL;
+                    char *arg3 = NULL;
+                    char *arg4 = NULL;
+                    if (arg1 != NULL) {
+                        arg2 = strtok(NULL, ",");
+                        arg1[strlen(arg1)] = '\0';
+                    }
+                    if (arg2 != NULL) {
+                        arg3 = strtok(NULL, ",");
+                        arg2[strlen(arg2)] = '\0';
+                    } 
+                    if (arg3 != NULL) {
+                        arg4 = strtok(NULL, ",");
+                        arg3[strlen(arg3)] = '\0';
+                    }
+                    if (arg4 != NULL) {
+                        arg4[strlen(arg4)] = '\0';
+                    }
+                    //printf("Args tokenized, but not atof'd.\n");
+                    //printf("Arg1: %s Arg 2: %s, Arg 3: %s, Arg 4: %s\n", arg1, arg2, arg3, arg4);
+                    if (arg2 != NULL && atof(arg2) != 0) { //Prevent SEGFAULT by checking null first.
+                        addVect.x = atof(arg2); 
+                    } else {
+                        addVect.x = 0;
+                    }
+                    if (arg3 != NULL && atof(arg3) != 0) {  
+                        addVect.y = atof(arg3);
+                    } else {
+                        addVect.y = 0;
+                    }
+                    if (arg4 != NULL && atof(arg4) != 0) {  
+                        addVect.z = atof(arg4); 
+                    } else {
+                        addVect.z = 0;
+                    }
+                    //printf("Tokens obtained properly and x y z assigned.\n");
+                    strncpy(newVectName, arg1, VECT_NAME_MAX);
+                    strcat(newVectName, "\0");
+                    strncpy(addVect.name, newVectName, VECT_NAME_MAX);
+                    //printf("Final vect = %s, %f, %f, %f\n", addVect.name, addVect.x, addVect.y, addVect.z);
+                    int returnCode = addVector(addVect);
+                    if (returnCode == -1) {
+                        fclose(filepointer);
+                        free(currentLineText);
+                        free(newVectName);
+                        return -2; //Different error code for a different failure.
+                    }
+                    free(newVectName);
                 } else {
-                    addVect.x = 0;
+                    shouldLoopContinue = false;
+                    free(newVectName);
                 }
-                if (atof(arg3) != 0) {  
-                    addVect.y = atof(arg3); //TODO: Check if this needs typechecking.
-                } else {
-                    addVect.y = 0;
-                }
-                if (atof(arg4) != 0) {  
-                    addVect.z = atof(arg4); //TODO: Check if this needs typechecking.
-                } else {
-                    addVect.z = 0;
-                }
-                strcpy(addVect.name, arg1);
-                int returnCode = addVector(addVect);
-                if (returnCode == -1) {
-                    fclose(filepointer);
-                    free(currentLineText);
-                    return -2; //Different error code for a different failure.
-                }
-            } while (currentLineText != NULL);
+            } while (shouldLoopContinue);
         } else {
             fclose(filepointer);
             return -2; //Different error code for a different failure.
@@ -87,17 +107,13 @@ int loadToCSV(char* fileName) {
     FILE* filepointer;
     filepointer = fopen(fileName, "w");
     if (filepointer == NULL) {
-        return -1;
+        return -1; //File failed to load.
     } else {
-        /*Find length of vector array by dividing the size of the pointer in
-        bytes by the size of the vector. This would still have the issue of
-        grabbing blank vectors at the end, but that can be solved a lot more
-        easily by adding a check for their blank names.*/
-        for (int i = 0; i < (sizeof(vectorList)/sizeof(vector)); i++) {
+        for (int i = 0; i < getVectorCount(); i++) {
             vector currVect = getVectorAtIndex(i);
             if (currVect.name[0] != '\0') { //check for blank vector
-                int didItWork = fputs("%s,%f,%f,%f\n", currVect.name, currVect.x \
-                currVect.y, currVect.z);
+                int didItWork = fprintf(filepointer, "%s,%f,%f,%f\n", currVect.name, currVect.x, \
+                    currVect.y, currVect.z);
                 if (didItWork == -1) { //This means that the write failed.
                     fclose(filepointer);
                     return -2; //Different error code for a different failure.

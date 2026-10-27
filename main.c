@@ -16,7 +16,7 @@
 #define CHARACTER_LIMIT 200
 
 int main(int argc, char* argv[]) {
-    int didExitSet = atExit(quitProgram);
+    int didExitSet = atexit(quitProgram);
     if (didExitSet != 0) {
         printf("The program did not initialize properly. Please try again.\n");
         exit(0);
@@ -51,5 +51,6 @@ int main(int argc, char* argv[]) {
         returnVal = parseInput(userInput);
     }
     printf("Quitting program...\n");
+    exit(0);
     return 0;
 }
